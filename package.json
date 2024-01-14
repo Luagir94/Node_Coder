@@ -1,0 +1,30 @@
+{
+  "name": "node_coder",
+  "version": "1.0.0",
+  "description": "Entregas de Coder curso backend",
+  "main": "server.ts",
+  "scripts": {
+    "dev": "tsnd --respawn src/app.ts",
+    "build": "rimraf ./dist && tsc",
+    "start": "npm run build && node dist/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Luagir94/Node_Coder.git"
+  },
+  "author": "Luciano Giraudi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Luagir94/Node_Coder/issues"
+  },
+  "homepage": "https://github.com/Luagir94/Node_Coder#readme",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "env-var": "^7.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3"
+  }
+}
