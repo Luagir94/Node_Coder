@@ -20,7 +20,8 @@
   "homepage": "https://github.com/Luagir94/Node_Coder#readme",
   "dependencies": {
     "dotenv": "^16.3.1",
-    "env-var": "^7.4.1"
+    "env-var": "^7.4.1",
+    "rimraf": "^5.0.5"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
