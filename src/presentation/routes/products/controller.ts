@@ -1,4 +1,6 @@
+import { CustomError } from '@/domain/errors'
 import { type ProductRepository } from '@/domain/repositories'
+import { LoggerService } from '@/domain/services/logger'
 import { type Request, type Response } from 'express'
 
 export class ProductController {
@@ -6,20 +8,36 @@ export class ProductController {
     constructor(private readonly productRepository: ProductRepository) {}
 
     public gerProducts = async (req: Request, res: Response) => {
-        const { limit, offset } = req.query
+        let { limit, offset } = req.query
 
-        const products = await this.productRepository.getAll(+limit, +offset)
-        return res.json(products)
+        if (!limit) limit = '0'
+        if (!offset) offset = ' 0'
+
+        this.productRepository
+            .getAll(+limit, +offset)
+            .then((products) => {
+                res.json(products)
+            })
+            .catch((error) => this.handleError(error, res))
     }
 
-    public getProductById = async (req: Request, res: Response) => {
+    getProductById = async (req: Request, res: Response) => {
         const id = +req.params.id
 
-        try {
-            const product = await this.productRepository.findById(id)
-            res.json(product)
-        } catch (error) {
-            res.status(400).json({ error })
+        await this.productRepository
+            .findById(id)
+            .then((product) => {
+                res.json(product)
+            })
+            .catch((error) => this.handleError(error, res))
+    }
+
+    private readonly handleError = (error: unknown, res: Response) => {
+        if (error instanceof CustomError) {
+            LoggerService.error(`${error.message}`)
+            return res.status(error.statusCode).json({ error: error.message })
         }
+
+        return res.status(500).json({ error: 'Internal server error' })
     }
 }

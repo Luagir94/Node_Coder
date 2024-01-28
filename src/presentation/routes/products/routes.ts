@@ -7,7 +7,7 @@ import { Router } from 'express'
 export class ProductRoutes {
     static get routes(): Router {
         const router = Router()
-        const datasource = new ProductDatasourceImpl('/data')
+        const datasource = new ProductDatasourceImpl('data/products.json')
         const productRepository = new ProductRepositoryImpl(datasource)
         const productController = new ProductController(productRepository)
 

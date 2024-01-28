@@ -12,28 +12,28 @@ export class ProductEntity {
     private static readonly lastId: number = 1
 
     constructor(
-        private readonly _Id: number,
-        private readonly _Code: string,
-        private readonly _Title: string,
-        private readonly _Price: number,
-        private readonly _Description: string,
-        private readonly _Thumbnail: string,
-        private readonly _Stock: number
+        private readonly id: number,
+        private readonly code: string,
+        private readonly title: string,
+        private readonly price: number,
+        private readonly description: string,
+        private readonly thumbnail: string,
+        private readonly stock: number
     ) {}
 
     public get getId(): number {
-        return this._Id
+        return this.id
     }
 
     public get fromClass(): ProductEntityData {
         return {
-            id: this._Id,
-            code: this._Code,
-            title: this._Title,
-            price: this._Price,
-            description: this._Description,
-            thumbnail: this._Thumbnail,
-            stock: this._Stock,
+            id: this.id,
+            code: this.code,
+            title: this.title,
+            price: this.price,
+            description: this.description,
+            thumbnail: this.thumbnail,
+            stock: this.stock,
         }
     }
 
