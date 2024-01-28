@@ -1,3 +1,13 @@
+export interface ProductEntityData {
+    id: number
+    code: string
+    title: string
+    price: number
+    description: string
+    thumbnail: string
+    stock: number
+}
+
 export class ProductEntity {
     private static readonly lastId: number = 1
 
@@ -15,7 +25,7 @@ export class ProductEntity {
         return this._Id
     }
 
-    public get getData(): any {
+    public get fromClass(): ProductEntityData {
         return {
             id: this._Id,
             code: this._Code,
