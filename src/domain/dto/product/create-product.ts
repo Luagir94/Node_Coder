@@ -70,7 +70,7 @@ export class CreateProductDto {
                         .nonnegative({ message: errorMessages.minValue('stock') }),
                 })
                 .parse({ ...props })
-            console.log(schema)
+
             return [
                 undefined,
                 new CreateProductDto(

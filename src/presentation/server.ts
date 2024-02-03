@@ -1,3 +1,4 @@
+import { LoggerService } from '@/domain/services/logger'
 import * as express from 'express'
 import { type Router } from 'express'
 
@@ -29,7 +30,7 @@ export class Server {
         this.app.use('/api', this.routes)
 
         this.app.listen(this.port, () => {
-            console.log(`Server running on port ${this.port}`)
+            LoggerService.info(`Server running on port ${this.port}`)
         })
     }
 }

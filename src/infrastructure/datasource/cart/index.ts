@@ -3,7 +3,7 @@ import { type ProductDataSource } from '@/domain/datasources/product'
 import { type CreateCartDto } from '@/domain/dto/cart/create-cart'
 import { type UpdateCartDto } from '@/domain/dto/cart/update-cart'
 import { UpdateProductDto } from '@/domain/dto/product/update-product'
-import { CartEntity, type CartEntityData } from '@/domain/entities/cart'
+import { CartEntity, type CartEntityData, type ProductCartInterface } from '@/domain/entities/cart'
 import { CustomError } from '@/domain/errors'
 import * as fs from 'fs'
 
@@ -37,7 +37,7 @@ export class CartDatasourceImpl implements CartDataSource {
                 return { id: productEntity.getId, quantity: product.quantity }
             })
         )
-        console.log(products)
+
         elements.push({ products, id })
 
         await fs.promises.writeFile(this._FilePath, JSON.stringify(elements))
@@ -80,20 +80,39 @@ export class CartDatasourceImpl implements CartDataSource {
                         `No hay suficiente stock para el producto con id ${product.id}. Stock disponible: ${productEntity.getStock}`
                     )
                 }
-                productEntity.setStock(productEntity.getStock - product.quantity)
+                if (product.quantity < 0) {
+                    productEntity.setStock(productEntity.getStock - product.quantity)
+                } else {
+                    productEntity.setStock(productEntity.getStock + product.quantity)
+                }
+
                 const [errors, updatedProduct] = UpdateProductDto.create(productEntity.getValues, productEntity.getId)
                 if (errors) throw CustomError.badRequest(errors)
+
                 await this._ProductDatasource.update(updatedProduct)
                 return { id: productEntity.getId, quantity: product.quantity }
             })
         )
 
-        const updatedCartProducts = parsedCarts[index].getProducts.map((product) => {
-            const productIndex = mappedProducts.findIndex((p) => p.id === product.id)
-            if (productIndex === -1) return product
-            return { id: product.id, quantity: product.quantity + mappedProducts[productIndex].quantity }
-        })
+        const updatedCartProducts = parsedCarts[index].getProducts
+            .map((product): ProductCartInterface | null => {
+                const productIndex = mappedProducts.findIndex((p) => p.id === product.id)
+                if (productIndex === -1) return product
+                const updatedProduct = {
+                    id: product.id,
+                    quantity: product.quantity + mappedProducts[productIndex].quantity,
+                }
 
+                if (updatedProduct.quantity === 0) return null
+
+                return updatedProduct
+            })
+            .filter((p) => p !== null)
+
+        if (updatedCartProducts.length === 0) {
+            await this.delete(id)
+            return
+        }
         parsedCarts[index] = new CartEntity(id, updatedCartProducts)
         await fs.promises.writeFile(this._FilePath, JSON.stringify(parsedCarts))
     }

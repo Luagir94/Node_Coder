@@ -22,22 +22,29 @@ export class UpdateCartDto {
         try {
             const productsPropsSchema = z.object({
                 id: z.string({ required_error: errorMessages.requiredField('id') }),
-                quantity: z
-                    .number({
-                        required_error: errorMessages.requiredField('quantity'),
-                        invalid_type_error: errorMessages.invalidFormat('quantity', 'number'),
-                    })
-                    .positive({ message: errorMessages.minValue('quantity') }),
+                quantity: z.number({
+                    required_error: errorMessages.requiredField('quantity'),
+                    invalid_type_error: errorMessages.invalidFormat('quantity', 'number'),
+                }),
             })
 
             const schema = z
                 .object({
-                    products: z.array(productsPropsSchema),
+                    products: productsPropsSchema
+                        .array()
+                        .nonempty({ message: errorMessages.requiredField('products') }),
                     id: z.string({ required_error: errorMessages.requiredField('id') }),
                 })
                 .parse({ ...props, id })
 
-            return [undefined, new UpdateCartDto(schema.products as ProductCartInterface[], schema.id)]
+            const products = schema.products.map((product: Record<string, any>) => {
+                return {
+                    id: product.id as string,
+                    quantity: product.quantity as number,
+                }
+            })
+
+            return [undefined, new UpdateCartDto(products, schema.id)]
         } catch (error) {
             if (error instanceof z.ZodError) {
                 return [error.issues[0].message]

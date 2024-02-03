@@ -27,17 +27,17 @@ export class CreateCartDto {
 
             const schema = z
                 .object({
-                    products: z.array(productsPropsSchema, {
-                        required_error: errorMessages.requiredField('products'),
-                        invalid_type_error: errorMessages.invalidFormat('products', 'array'),
-                    }),
+                    products: productsPropsSchema
+                        .array()
+                        .nonempty({ message: errorMessages.requiredField('products') }),
                 })
+
                 .parse({ ...props })
 
             const products = schema.products.map((product: Record<string, any>) => {
                 return {
-                    id: product.id,
-                    quantity: product.quantity,
+                    id: product.id as string,
+                    quantity: product.quantity as number,
                 }
             })
 
