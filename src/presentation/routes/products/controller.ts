@@ -1,13 +1,14 @@
+import { CreateProductDto } from '@/domain/dto'
+import { UpdateProductDto } from '@/domain/dto/product/update-product'
 import { CustomError } from '@/domain/errors'
 import { type ProductRepository } from '@/domain/repositories'
 import { LoggerService } from '@/domain/services/logger'
 import { type Request, type Response } from 'express'
 
 export class ProductController {
-    //* DI
     constructor(private readonly productRepository: ProductRepository) {}
 
-    public gerProducts = async (req: Request, res: Response) => {
+    public getProducts = async (req: Request, res: Response) => {
         let { limit, offset } = req.query
 
         if (!limit) limit = '0'
@@ -21,13 +22,49 @@ export class ProductController {
             .catch((error) => this.handleError(error, res))
     }
 
-    getProductById = async (req: Request, res: Response) => {
-        const id = +req.params.id
+    public getProductById = async (req: Request, res: Response) => {
+        const id = req.params.id
 
-        await this.productRepository
+        this.productRepository
             .findById(id)
             .then((product) => {
                 res.json(product)
+            })
+            .catch((error) => this.handleError(error, res))
+    }
+
+    public createProduct = async (req: Request, res: Response) => {
+        const [error, createProductDto] = CreateProductDto.create(req.body)
+        if (error) return res.status(400).json({ error })
+
+        this.productRepository
+            .create(createProductDto)
+            .then(() => {
+                res.status(201).json({ message: 'Producto creado' })
+            })
+            .catch((error) => this.handleError(error, res))
+    }
+
+    public updateProduct = async (req: Request, res: Response) => {
+        const id = req.params.id
+        const [error, updateProductDto] = UpdateProductDto.create(req.body, id)
+        if (error) return res.status(400).json({ error })
+
+        this.productRepository
+            .update(updateProductDto)
+            .then(() => {
+                res.status(200).json({ message: 'Producto actualizado' })
+            })
+            .catch((error) => this.handleError(error, res))
+    }
+
+    public deleteProduct = async (req: Request, res: Response) => {
+        const id = req.params.id
+
+        this.productRepository
+            .delete(id)
+            .then(() => {
+                res.status(200).json({ message: 'Producto eliminado' })
             })
             .catch((error) => this.handleError(error, res))
     }

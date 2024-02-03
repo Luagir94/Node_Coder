@@ -1,45 +1,75 @@
 export interface ProductEntityData {
-    id: number
     code: string
-    title: string
+    name: string
     price: number
     description: string
-    thumbnail: string
+    thumbnail: string[]
     stock: number
+    status: boolean
+    category: string
 }
 
 export class ProductEntity {
-    private static readonly lastId: number = 1
+    private readonly code: string
+    private readonly name: string
+    private readonly price: number
+    private readonly description: string
+    private readonly thumbnail: string[]
+    private stock: number
+    private readonly id: string
+    private readonly status: boolean
+    private readonly category: string
 
     constructor(
-        private readonly id: number,
-        private readonly code: string,
-        private readonly title: string,
-        private readonly price: number,
-        private readonly description: string,
-        private readonly thumbnail: string,
-        private readonly stock: number
-    ) {}
+        id: string,
+        code: string,
+        name: string,
+        price: number,
+        description: string,
+        thumbnail: string[],
+        stock: number,
+        status: boolean,
+        category: string
+    ) {
+        this.id = id
+        this.code = code
+        this.name = name
+        this.price = price
+        this.description = description
+        this.thumbnail = thumbnail
+        this.stock = stock
+        this.status = status
+        this.category = category
+    }
 
-    public get getId(): number {
+    public get getId(): string {
         return this.id
     }
 
-    public get fromClass(): ProductEntityData {
+    public get getStock(): number {
+        return this.stock
+    }
+
+    public get getValues(): ProductEntityData {
         return {
-            id: this.id,
             code: this.code,
-            title: this.title,
+            name: this.name,
             price: this.price,
             description: this.description,
             thumbnail: this.thumbnail,
             stock: this.stock,
+            category: this.category,
+            status: this.status,
         }
     }
 
     public static fromObject(object: Record<string, any>): ProductEntity {
-        const { id, code, title, price, description, thumbnail, stock } = object
+        const { id, code, name, price, description, thumbnail, stock, status, category } = object
 
-        return new ProductEntity(id, code, title, price, description, thumbnail, stock)
+        return new ProductEntity(id, code, name, price, description, thumbnail, stock, status, category)
+    }
+
+    public setStock(stock: number) {
+        this.stock = stock
     }
 }

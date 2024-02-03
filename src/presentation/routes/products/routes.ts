@@ -11,8 +11,11 @@ export class ProductRoutes {
         const productRepository = new ProductRepositoryImpl(datasource)
         const productController = new ProductController(productRepository)
 
-        router.get('/', productController.gerProducts)
+        router.get('/', productController.getProducts)
         router.get('/:id', productController.getProductById)
+        router.post('/', productController.createProduct)
+        router.put('/:id', productController.updateProduct)
+        router.delete('/:id', productController.deleteProduct)
 
         return router
     }
