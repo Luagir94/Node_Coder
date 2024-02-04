@@ -2,8 +2,6 @@ import { CreateCartDto } from '@/domain/dto/cart/create-cart'
 import { UpdateCartDto } from '@/domain/dto/cart/update-cart'
 import { CustomError } from '@/domain/errors'
 import { type CartRepository } from '@/domain/repositories'
-
-import { LoggerService } from '@/domain/services/logger'
 import type { Request, Response } from 'express'
 
 export class CartController {
@@ -39,7 +37,7 @@ export class CartController {
         if (error) return res.status(400).json({ error })
 
         this.cartRepository
-            .create(createCartDto)
+            .create(createCartDto!)
             .then(() => {
                 res.status(201).json({ message: 'Carrito creado' })
             })
@@ -52,7 +50,7 @@ export class CartController {
         if (error) return res.status(400).json({ error })
 
         this.cartRepository
-            .update(updateCartDto)
+            .update(updateCartDto!)
             .then(() => {
                 res.status(200).json({ message: 'Carrito actualizado' })
             })
@@ -72,7 +70,6 @@ export class CartController {
 
     private readonly handleError = (error: unknown, res: Response) => {
         if (error instanceof CustomError) {
-            LoggerService.error(`${error.message}`)
             return res.status(error.statusCode).json({ error: error.message })
         }
 

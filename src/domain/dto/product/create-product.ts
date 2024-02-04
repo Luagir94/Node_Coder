@@ -1,6 +1,38 @@
 import { errorMessages } from '@/utils/messages'
 import { z } from 'zod'
 
+const schema = z.object({
+    name: z
+        .string({ required_error: errorMessages.requiredField('name') })
+        .min(3, { message: errorMessages.minLength('name', 3) })
+        .max(255, { message: errorMessages.maxLength('name', 255) }),
+    code: z.string({ required_error: errorMessages.requiredField('code') }),
+    price: z
+        .number({
+            required_error: errorMessages.requiredField('price'),
+            invalid_type_error: errorMessages.invalidFormat('price', 'number'),
+        })
+        .positive({ message: errorMessages.minValue('quantity') }),
+    status: z.boolean().optional().default(true),
+    category: z.string({ required_error: errorMessages.requiredField('category') }),
+    description: z
+        .string({ required_error: errorMessages.requiredField('description') })
+        .min(3, { message: errorMessages.minLength('description', 3) })
+        .max(255, { message: errorMessages.maxLength('description', 255) }),
+    thumbnail: z
+        .array(z.string({ invalid_type_error: errorMessages.invalidFormat('thumbnail', 'string[]') }), {
+            invalid_type_error: errorMessages.invalidFormat('thumbnail', 'string[]'),
+        })
+        .optional()
+        .default([]),
+    stock: z
+        .number({
+            required_error: errorMessages.requiredField('stock'),
+            invalid_type_error: errorMessages.invalidFormat('stock', 'number'),
+        })
+        .nonnegative({ message: errorMessages.minValue('stock') }),
+})
+
 export class CreateProductDto {
     private readonly code: string
     private readonly name: string
@@ -37,58 +69,32 @@ export class CreateProductDto {
             props.stock = +props.stock
             props.quantity = +props.quantity
 
-            const schema = z
-                .object({
-                    name: z
-                        .string({ required_error: errorMessages.requiredField('name') })
-                        .min(3, { message: errorMessages.minLength('name', 3) })
-                        .max(255, { message: errorMessages.maxLength('name', 255) }),
-                    code: z.string({ required_error: errorMessages.requiredField('code') }),
-                    price: z
-                        .number({
-                            required_error: errorMessages.requiredField('price'),
-                            invalid_type_error: errorMessages.invalidFormat('price', 'number'),
-                        })
-                        .positive({ message: errorMessages.minValue('quantity') }),
-                    status: z.boolean().optional().default(true),
-                    category: z.string({ required_error: errorMessages.requiredField('category') }),
-                    description: z
-                        .string({ required_error: errorMessages.requiredField('description') })
-                        .min(3, { message: errorMessages.minLength('description', 3) })
-                        .max(255, { message: errorMessages.maxLength('description', 255) }),
-                    thumbnail: z
-                        .array(z.string({ invalid_type_error: errorMessages.invalidFormat('thumbnail', 'string[]') }), {
-                            invalid_type_error: errorMessages.invalidFormat('thumbnail', 'string[]'),
-                        })
-                        .optional()
-                        .default([]),
-                    stock: z
-                        .number({
-                            required_error: errorMessages.requiredField('stock'),
-                            invalid_type_error: errorMessages.invalidFormat('stock', 'number'),
-                        })
-                        .nonnegative({ message: errorMessages.minValue('stock') }),
-                })
-                .parse({ ...props })
+            const schemaParsed = schema.safeParse(props)
+
+            if (schemaParsed.success === false) {
+                return [schemaParsed.error.issues[0].message]
+            }
 
             return [
                 undefined,
                 new CreateProductDto(
-                    schema.code,
-                    schema.name,
-                    schema.price,
-                    schema.description,
-                    schema.thumbnail,
-                    schema.stock,
-                    schema.status,
-                    schema.category
+                    schemaParsed.data.code,
+                    schemaParsed.data.name,
+                    schemaParsed.data.price,
+                    schemaParsed.data.description,
+                    schemaParsed.data.thumbnail,
+                    schemaParsed.data.stock,
+                    schemaParsed.data.status,
+                    schemaParsed.data.category
                 ),
             ]
         } catch (error) {
             if (error instanceof z.ZodError) {
                 return [error.issues[0].message]
+            } else if (error instanceof Error) {
+                return [error.message]
             }
-            return [error.message]
+            return ['An error occurred']
         }
     }
 }

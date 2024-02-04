@@ -33,7 +33,7 @@ export class CartDatasourceImpl implements CartDataSource {
                 productEntity.setStock(productEntity.getStock - product.quantity)
                 const [errors, updatedProduct] = UpdateProductDto.create(productEntity.getValues, productEntity.getId)
                 if (errors) throw CustomError.badRequest(errors)
-                await this._ProductDatasource.update(updatedProduct)
+                await this._ProductDatasource.update(updatedProduct!)
                 return { id: productEntity.getId, quantity: product.quantity }
             })
         )
@@ -56,7 +56,7 @@ export class CartDatasourceImpl implements CartDataSource {
                 productEntity.setStock(productEntity.getStock + product.quantity)
                 const [errors, updatedProduct] = UpdateProductDto.create(productEntity.getValues, productEntity.getId)
                 if (errors) throw CustomError.badRequest(errors)
-                await this._ProductDatasource.update(updatedProduct)
+                await this._ProductDatasource.update(updatedProduct!)
             })
         )
         parsedCarts.splice(index, 1)
@@ -89,7 +89,7 @@ export class CartDatasourceImpl implements CartDataSource {
                 const [errors, updatedProduct] = UpdateProductDto.create(productEntity.getValues, productEntity.getId)
                 if (errors) throw CustomError.badRequest(errors)
 
-                await this._ProductDatasource.update(updatedProduct)
+                await this._ProductDatasource.update(updatedProduct!)
                 return { id: productEntity.getId, quantity: product.quantity }
             })
         )
@@ -113,7 +113,7 @@ export class CartDatasourceImpl implements CartDataSource {
             await this.delete(id)
             return
         }
-        parsedCarts[index] = new CartEntity(id, updatedCartProducts)
+        parsedCarts[index] = new CartEntity(id, updatedCartProducts as ProductCartInterface[])
         await fs.promises.writeFile(this._FilePath, JSON.stringify(parsedCarts))
     }
 

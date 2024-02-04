@@ -2,7 +2,6 @@ import { CreateProductDto } from '@/domain/dto'
 import { UpdateProductDto } from '@/domain/dto/product/update-product'
 import { CustomError } from '@/domain/errors'
 import { type ProductRepository } from '@/domain/repositories'
-import { LoggerService } from '@/domain/services/logger'
 import { type Request, type Response } from 'express'
 
 export class ProductController {
@@ -38,7 +37,7 @@ export class ProductController {
         if (error) return res.status(400).json({ error })
 
         this.productRepository
-            .create(createProductDto)
+            .create(createProductDto!)
             .then(() => {
                 res.status(201).json({ message: 'Producto creado' })
             })
@@ -51,7 +50,7 @@ export class ProductController {
         if (error) return res.status(400).json({ error })
 
         this.productRepository
-            .update(updateProductDto)
+            .update(updateProductDto!)
             .then(() => {
                 res.status(200).json({ message: 'Producto actualizado' })
             })
@@ -71,7 +70,6 @@ export class ProductController {
 
     private readonly handleError = (error: unknown, res: Response) => {
         if (error instanceof CustomError) {
-            LoggerService.error(`${error.message}`)
             return res.status(error.statusCode).json({ error: error.message })
         }
 
