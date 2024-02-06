@@ -1,6 +1,6 @@
 import { type CreateCartDto } from '@/domain/dto/cart/create-cart'
 import { type UpdateCartDto } from '@/domain/dto/cart/update-cart'
-import { type CartEntity } from '@/domain/entities/cart'
+import { type CartEntity } from '@/domain/entities'
 
 export abstract class CartDataSource {
     abstract getAll(limit: number, offset: number): Promise<CartEntity[]>

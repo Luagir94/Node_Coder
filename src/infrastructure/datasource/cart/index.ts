@@ -3,7 +3,7 @@ import { type ProductDataSource } from '@/domain/datasources/product'
 import { type CreateCartDto } from '@/domain/dto/cart/create-cart'
 import { type UpdateCartDto } from '@/domain/dto/cart/update-cart'
 import { UpdateProductDto } from '@/domain/dto/product/update-product'
-import { CartEntity, type CartEntityData, type ProductCartInterface } from '@/domain/entities/cart'
+import { CartEntity, type CartEntityData, type ProductCartInterface } from '@/domain/entities'
 import { CustomError } from '@/domain/errors'
 import * as fs from 'fs'
 

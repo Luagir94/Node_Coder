@@ -1,4 +1,4 @@
-import { LoggerService } from '@/domain/services/logger'
+import { LoggerService } from '@/infrastructure/services/logger'
 
 export class CustomError extends Error {
     constructor(

@@ -1,7 +1,7 @@
 import { type ProductDataSource } from '@/domain/datasources/product'
 import { type CreateProductDto } from '@/domain/dto'
 import { type UpdateProductDto } from '@/domain/dto/product/update-product'
-import { type ProductEntity } from '@/domain/entities/product'
+import { type ProductEntity } from '@/domain/entities'
 import { type ProductRepository } from '@/domain/repositories'
 
 export class ProductRepositoryImpl implements ProductRepository {

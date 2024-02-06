@@ -1,7 +1,7 @@
 import { type ProductDataSource } from '@/domain/datasources/product'
 import { type CreateProductDto } from '@/domain/dto'
 import { type UpdateProductDto } from '@/domain/dto/product/update-product'
-import { ProductEntity, type ProductEntityData } from '@/domain/entities/product'
+import { ProductEntity, type ProductEntityData } from '@/domain/entities'
 import { CustomError } from '@/domain/errors'
 import * as fs from 'fs'
 

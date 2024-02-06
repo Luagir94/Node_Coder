@@ -1,7 +1,7 @@
 import { type CartDataSource } from '@/domain/datasources/cart'
 import { type CreateCartDto } from '@/domain/dto/cart/create-cart'
 import { type UpdateCartDto } from '@/domain/dto/cart/update-cart'
-import { type CartEntity } from '@/domain/entities/cart'
+import { type CartEntity } from '@/domain/entities'
 import { type CartRepository } from '@/domain/repositories'
 
 export class CartRepositoryImpl implements CartRepository {

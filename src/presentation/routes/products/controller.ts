@@ -2,6 +2,13 @@ import { CreateProductDto } from '@/domain/dto'
 import { UpdateProductDto } from '@/domain/dto/product/update-product'
 import { CustomError } from '@/domain/errors'
 import { type ProductRepository } from '@/domain/repositories'
+import {
+    CreateProductUseCase,
+    DeleteProductUseCase,
+    GetProductsUseCase,
+    GetProductUseCase,
+    UpdateProductUseCase,
+} from '@/domain/use-cases'
 import { type Request, type Response } from 'express'
 
 export class ProductController {
@@ -13,8 +20,8 @@ export class ProductController {
         if (!limit) limit = '0'
         if (!offset) offset = ' 0'
 
-        this.productRepository
-            .getAll(+limit, +offset)
+        new GetProductsUseCase(this.productRepository)
+            .execute(+limit, +offset)
             .then((products) => {
                 res.json(products)
             })
@@ -24,8 +31,8 @@ export class ProductController {
     public getProductById = async (req: Request, res: Response) => {
         const id = req.params.id
 
-        this.productRepository
-            .findById(id)
+        new GetProductUseCase(this.productRepository)
+            .execute(id)
             .then((product) => {
                 res.json(product)
             })
@@ -36,8 +43,8 @@ export class ProductController {
         const [error, createProductDto] = CreateProductDto.create(req.body)
         if (error) return res.status(400).json({ error })
 
-        this.productRepository
-            .create(createProductDto!)
+        new CreateProductUseCase(this.productRepository)
+            .execute(createProductDto!)
             .then(() => {
                 res.status(201).json({ message: 'Producto creado' })
             })
@@ -49,8 +56,8 @@ export class ProductController {
         const [error, updateProductDto] = UpdateProductDto.create(req.body, id)
         if (error) return res.status(400).json({ error })
 
-        this.productRepository
-            .update(updateProductDto!)
+        new UpdateProductUseCase(this.productRepository)
+            .execute(updateProductDto!)
             .then(() => {
                 res.status(200).json({ message: 'Producto actualizado' })
             })
@@ -60,8 +67,8 @@ export class ProductController {
     public deleteProduct = async (req: Request, res: Response) => {
         const id = req.params.id
 
-        this.productRepository
-            .delete(id)
+        new DeleteProductUseCase(this.productRepository)
+            .execute(id)
             .then(() => {
                 res.status(200).json({ message: 'Producto eliminado' })
             })

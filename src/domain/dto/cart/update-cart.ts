@@ -1,4 +1,4 @@
-import { type ProductCartInterface } from '@/domain/entities/cart'
+import { type ProductCartInterface } from '@/domain/entities'
 import { errorMessages } from '@/utils/messages'
 import { z } from 'zod'
 

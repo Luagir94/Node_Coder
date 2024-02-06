@@ -1,4 +1,4 @@
-import { LoggerService } from '@/domain/services/logger'
+import { LoggerService } from '@/infrastructure/services/logger'
 import * as express from 'express'
 import { type Router } from 'express'
 
