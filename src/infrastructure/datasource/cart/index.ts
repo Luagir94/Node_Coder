@@ -26,14 +26,14 @@ export class CartDatasourceImpl implements CartDataSource {
 
     async findById(id: string): Promise<CartEntity> {
         const cart = await CartModel.findById({ _id: id })
-        if (!cart) throw new CustomError(404, 'Carrito no encontrado')
+        if (!cart) throw CustomError.notFound('Carrito no encontrado')
 
         return CartEntity.fromObject(cart)
     }
 
     async update(newCart: UpdateCartDto): Promise<void> {
         const cart = await CartModel.findById({ _id: newCart.getId })
-        if (!cart) throw new CustomError(404, 'Carrito no encontrado')
+        if (!cart) throw CustomError.notFound('Carrito no encontrado')
 
         switch (newCart.getAction) {
             case CART_ACTION.INCREASE_QUANTITY: {

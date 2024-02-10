@@ -7,11 +7,6 @@ import { CustomError } from '@/domain/errors'
 import { USER_ROLE } from '@/domain/types/enum'
 
 export class AuthDataSourceImpl implements AuthDataSource {
-    constructor() {
-        this.register = this.register.bind(this)
-        this.login = this.login.bind(this)
-    }
-
     async login(loginDto: LoginDto): Promise<{
         token: string
         user: UserEntityData

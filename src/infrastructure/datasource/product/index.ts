@@ -18,7 +18,7 @@ export class ProductDatasourceImpl implements ProductDataSource {
 
     async findById(id: string): Promise<ProductEntity> {
         const product = await ProductModel.findById({ _id: id })
-        if (!product) throw new CustomError(404, 'Product not found')
+        if (!product) throw CustomError.notFound('Producto no encontrado')
 
         return ProductEntity.fromObject(product)
     }
