@@ -1,6 +1,6 @@
 import { CartModel } from '@/data/mongo/models/cart'
 import { ProductModel } from '@/data/mongo/models/product'
-import { type CartDataSource } from '@/domain/datasources/cart'
+import { type CartDataSource } from '@/domain/datasources'
 import { type CreateCartDto, type UpdateCartDto } from '@/domain/dto'
 import { CartEntity } from '@/domain/entities'
 import { CustomError } from '@/domain/errors'

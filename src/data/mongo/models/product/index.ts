@@ -15,15 +15,15 @@ interface IProduct extends Document {
 }
 
 const schema = new Schema<IProduct>({
-    name: String,
-    price: Number,
-    stock: Number,
-    category: String,
-    status: Boolean,
-    description: String,
-    thumbnail: [String],
-    code: String,
-    slug: { type: String, index: true, unique: true },
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    stock: { type: Number, required: true },
+    category: { type: String, required: true },
+    status: { type: Boolean, required: true },
+    description: { type: String, required: true },
+    thumbnail: [{ type: String, required: true }],
+    code: { type: String, required: true, unique: true, index: true },
+    slug: { type: String, index: true, unique: true, required: true },
     _id: { type: String, default: () => randomUUID() },
 })
 

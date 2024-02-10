@@ -1,23 +1,25 @@
 import { randomUUID } from 'crypto'
-import mongoose, { type Document, Schema } from 'mongoose'
+import mongoose, { type Document, Schema, type Types } from 'mongoose'
 
-export interface IProductInCart extends Document {
+export interface IProductInCart {
     product_id: string
     quantity: number
 }
 
 export interface ICart extends Document {
-    products: IProductInCart[]
+    products: Types.DocumentArray<IProductInCart>
 }
 
-const productInCartSchema = new Schema<IProductInCart>({
-    product_id: { type: String, ref: 'Product' },
-    quantity: Number,
-    _id: { type: String, default: () => randomUUID() },
-})
-
 const schema = new Schema<ICart>({
-    products: [productInCartSchema],
+    products: {
+        type: [
+            {
+                product_id: { type: String, required: true },
+                quantity: { type: Number, required: true },
+            },
+        ],
+        required: true,
+    },
     _id: { type: String, default: () => randomUUID() },
 })
 

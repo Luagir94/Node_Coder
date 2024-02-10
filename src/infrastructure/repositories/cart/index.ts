@@ -1,4 +1,4 @@
-import { type CartDataSource } from '@/domain/datasources/cart'
+import { type CartDataSource } from '@/domain/datasources'
 import { type CreateCartDto, type UpdateCartDto } from '@/domain/dto'
 import { type CartEntity } from '@/domain/entities'
 import { type CartRepository } from '@/domain/repositories'

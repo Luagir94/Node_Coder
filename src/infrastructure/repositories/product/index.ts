@@ -1,4 +1,4 @@
-import { type ProductDataSource } from '@/domain/datasources/product'
+import { type ProductDataSource } from '@/domain/datasources'
 import { type CreateProductDto, type UpdateProductDto } from '@/domain/dto'
 import { type ProductEntity } from '@/domain/entities'
 import { type ProductRepository } from '@/domain/repositories'

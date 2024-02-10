@@ -1,38 +1,37 @@
-import { type UserRole } from '@/domain/types/enum'
+import { USER_ROLE } from '@/domain/types/enum'
+import { randomUUID } from 'crypto'
 import mongoose, { type Document, Schema } from 'mongoose'
 
-export interface IAddress extends Document {
+export interface IAddress {
     street: string
     city: string
     state: string
     zip: string
     country: string
-    id: mongoose.Types.UUID
 }
 
 export interface IUser extends Document {
     email: string
     password: string
-    id: mongoose.Types.UUID
     firstName: string
     lastName: string
-    role: UserRole
+    role: USER_ROLE
     address: IAddress
 }
 
 const schema = new Schema<IUser>({
-    email: String,
-    password: String,
-    firstName: String,
-    id: mongoose.Types.UUID,
-    lastName: String,
-    role: String,
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    firstName: { type: String, required: true },
+    _id: { type: String, default: () => randomUUID() },
+    lastName: { type: String, required: true },
+    role: { type: String, required: true, enum: Object.values(USER_ROLE) },
     address: {
-        street: String,
-        city: String,
-        state: String,
-        zip: String,
-        country: String,
+        street: { type: String, required: true },
+        city: { type: String, required: true },
+        state: { type: String, required: true },
+        zip: { type: String, required: true },
+        country: { type: String, required: true },
     },
 })
 
@@ -40,6 +39,7 @@ schema.set('toJSON', {
     virtuals: true,
     versionKey: false,
     transform: function (doc, ret) {
+        ret.id = ret._id
         delete ret._id
     },
 })
