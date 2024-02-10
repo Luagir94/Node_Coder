@@ -1,5 +1,5 @@
 import { CreateProductDto, UpdateProductDto } from '@/domain/dto'
-import { CustomError } from '@/domain/errors'
+import { CustomError, HandlerError } from '@/domain/errors'
 import { type ProductRepository } from '@/domain/repositories'
 import {
     CreateProductUseCase,
@@ -8,10 +8,7 @@ import {
     GetProductUseCase,
     UpdateProductUseCase,
 } from '@/domain/use-cases'
-import { LoggerService } from '@/infrastructure/services/logger'
 import { type Request, type Response } from 'express'
-import { MongoError } from 'mongodb'
-import mongoose from 'mongoose'
 
 export class ProductController {
     constructor(private readonly productRepository: ProductRepository) {}
@@ -27,7 +24,7 @@ export class ProductController {
             .then((products) => {
                 res.json(products)
             })
-            .catch((error) => this.handleError(error, res))
+            .catch((error) => HandlerError.responseFormat(error, res))
     }
 
     public getProductById = async (req: Request, res: Response) => {
@@ -38,32 +35,32 @@ export class ProductController {
             .then((product) => {
                 res.json(product)
             })
-            .catch((error) => this.handleError(error, res))
+            .catch((error) => HandlerError.responseFormat(error, res))
     }
 
     public createProduct = async (req: Request, res: Response) => {
         const [error, createProductDto] = CreateProductDto.create(req.body)
-        if (error) return res.status(400).json({ error })
+        if (error) throw CustomError.badRequest(error)
 
         new CreateProductUseCase(this.productRepository)
             .execute(createProductDto!)
             .then(() => {
                 res.status(201).json({ message: 'Producto creado' })
             })
-            .catch((error) => this.handleError(error, res))
+            .catch((error) => HandlerError.responseFormat(error, res))
     }
 
     public updateProduct = async (req: Request, res: Response) => {
         const id = req.params.id
         const [error, updateProductDto] = UpdateProductDto.create(req.body, id)
-        if (error) return res.status(400).json({ error })
+        if (error) throw CustomError.badRequest(error)
 
         new UpdateProductUseCase(this.productRepository)
             .execute(updateProductDto!)
             .then(() => {
                 res.status(200).json({ message: 'Producto actualizado' })
             })
-            .catch((error) => this.handleError(error, res))
+            .catch((error) => HandlerError.responseFormat(error, res))
     }
 
     public deleteProduct = async (req: Request, res: Response) => {
@@ -74,20 +71,6 @@ export class ProductController {
             .then(() => {
                 res.status(200).json({ message: 'Producto eliminado' })
             })
-            .catch((error) => this.handleError(error, res))
-    }
-
-    private readonly handleError = (error: unknown, res: Response) => {
-        if (error instanceof mongoose.Error || error instanceof MongoError) {
-            LoggerService.error(`DB Error: ${error.message}`)
-            return res.status(500).json({ error: error.message })
-        }
-
-        if (error instanceof CustomError) {
-            LoggerService.error(error.message)
-            return res.status(error.statusCode).json({ error: error.message })
-        }
-        console.error(error)
-        return res.status(500).json({ error: 'Error desconocido' })
+            .catch((error) => HandlerError.responseFormat(error, res))
     }
 }
