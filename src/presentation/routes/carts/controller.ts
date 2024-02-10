@@ -1,5 +1,4 @@
-import { CreateCartDto } from '@/domain/dto/cart/create-cart'
-import { UpdateCartDto } from '@/domain/dto/cart/update-cart'
+import { CreateCartDto, UpdateCartDto } from '@/domain/dto'
 import { CustomError } from '@/domain/errors'
 import { type CartRepository } from '@/domain/repositories'
 import {
@@ -9,7 +8,10 @@ import {
     GetCartUseCase,
     UpdateCartUseCase,
 } from '@/domain/use-cases'
+import { LoggerService } from '@/infrastructure/services/logger'
 import type { Request, Response } from 'express'
+import { MongoError } from 'mongodb'
+import mongoose from 'mongoose'
 
 export class CartController {
     constructor(private readonly cartRepository: CartRepository) {}
@@ -55,7 +57,6 @@ export class CartController {
         const id = req.params.id
         const [error, updateCartDto] = UpdateCartDto.create(req.body, id)
         if (error) return res.status(400).json({ error })
-
         new UpdateCartUseCase(this.cartRepository)
             .execute(updateCartDto!)
             .then(() => {
@@ -76,10 +77,15 @@ export class CartController {
     }
 
     private readonly handleError = (error: unknown, res: Response) => {
+        if (error instanceof mongoose.Error || error instanceof MongoError) {
+            LoggerService.error(`DB Error: ${error.message}`)
+            return res.status(500).json({ error: error.message })
+        }
+
         if (error instanceof CustomError) {
             return res.status(error.statusCode).json({ error: error.message })
         }
 
-        return res.status(500).json({ error: 'Internal server error' })
+        return res.status(500).json({ error: 'Error desconocido' })
     }
 }

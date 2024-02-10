@@ -11,6 +11,7 @@ export class UpdateProductDto {
     private readonly id: string
     private readonly status: boolean
     private readonly category: string
+    private readonly slug: string
 
     private constructor(
         code: string,
@@ -21,7 +22,8 @@ export class UpdateProductDto {
         stock: number,
         id: string,
         status: boolean,
-        category: string
+        category: string,
+        slug: string
     ) {
         this.code = code
         this.name = title
@@ -32,6 +34,7 @@ export class UpdateProductDto {
         this.id = id
         this.status = status
         this.category = category
+        this.slug = slug
     }
 
     public get getValues() {
@@ -45,7 +48,12 @@ export class UpdateProductDto {
             id: this.id,
             status: this.status,
             category: this.category,
+            slug: this.slug,
         }
+    }
+
+    public get getId() {
+        return this.id
     }
 
     static create(props: Record<string, any>, id: string): [string?, UpdateProductDto?] {
@@ -85,6 +93,7 @@ export class UpdateProductDto {
                     })
                     .nonnegative({ message: errorMessages.minValue('stock') }),
                 id: z.string({ required_error: errorMessages.requiredField('id') }),
+                slug: z.string({ required_error: errorMessages.requiredField('slug') }),
             })
             const schemaParsed = schema.safeParse({ ...props, id })
 
@@ -103,7 +112,8 @@ export class UpdateProductDto {
                     schemaParsed.data.stock,
                     schemaParsed.data.id,
                     schemaParsed.data.status,
-                    schemaParsed.data.category
+                    schemaParsed.data.category,
+                    schemaParsed.data.slug
                 ),
             ]
         } catch (error) {

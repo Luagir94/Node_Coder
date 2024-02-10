@@ -15,7 +15,7 @@ export class CreateCartDto {
 
     static create(props: Record<string, any>): [string?, CreateCartDto?] {
         const productsPropsSchema = z.object({
-            id: z.string({ required_error: errorMessages.requiredField('id') }),
+            product_id: z.string({ required_error: errorMessages.requiredField('id') }),
             quantity: z
                 .number({
                     required_error: errorMessages.requiredField('quantity'),

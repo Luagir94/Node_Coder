@@ -31,6 +31,7 @@ const schema = z.object({
             invalid_type_error: errorMessages.invalidFormat('stock', 'number'),
         })
         .nonnegative({ message: errorMessages.minValue('stock') }),
+    slug: z.string({ required_error: errorMessages.requiredField('slug') }),
 })
 
 export class CreateProductDto {
@@ -42,6 +43,7 @@ export class CreateProductDto {
     private readonly stock: number
     private readonly status: boolean
     private readonly category: string
+    private readonly slug: string
 
     private constructor(
         code: string,
@@ -51,7 +53,8 @@ export class CreateProductDto {
         thumbnail: string[],
         stock: number,
         status: boolean,
-        category: string
+        category: string,
+        slug: string
     ) {
         this.code = code
         this.name = name
@@ -61,6 +64,7 @@ export class CreateProductDto {
         this.stock = stock
         this.status = status
         this.category = category
+        this.slug = slug
     }
 
     static create(props: Record<string, any>): [string?, CreateProductDto?] {
@@ -85,7 +89,8 @@ export class CreateProductDto {
                     schemaParsed.data.thumbnail,
                     schemaParsed.data.stock,
                     schemaParsed.data.status,
-                    schemaParsed.data.category
+                    schemaParsed.data.category,
+                    schemaParsed.data.slug
                 ),
             ]
         } catch (error) {

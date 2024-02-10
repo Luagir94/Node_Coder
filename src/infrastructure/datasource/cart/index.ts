@@ -1,150 +1,87 @@
+import { CartModel } from '@/data/mongo/models/cart'
+import { ProductModel } from '@/data/mongo/models/product'
 import { type CartDataSource } from '@/domain/datasources/cart'
-import { type ProductDataSource } from '@/domain/datasources/product'
-import { type CreateCartDto } from '@/domain/dto/cart/create-cart'
-import { type UpdateCartDto } from '@/domain/dto/cart/update-cart'
-import { UpdateProductDto } from '@/domain/dto/product/update-product'
-import { CartEntity, type CartEntityData, type ProductCartInterface } from '@/domain/entities'
+import { type CreateCartDto, type UpdateCartDto } from '@/domain/dto'
+import { CartEntity } from '@/domain/entities'
 import { CustomError } from '@/domain/errors'
-import * as fs from 'fs'
+import { CART_ACTION } from '@/domain/types/enum'
 
 export class CartDatasourceImpl implements CartDataSource {
-    private readonly _FilePath: string
-    private readonly _DatabasePath: string = 'data'
-    private readonly _ProductDatasource: ProductDataSource
-
-    constructor(path: string, productDatasource: ProductDataSource) {
-        this._FilePath = path
-        this.databaseInstance(path)
-        this._ProductDatasource = productDatasource
-    }
-
     async create(cart: CreateCartDto): Promise<void> {
-        const elements = await this.getElements()
-        const id = crypto.randomUUID()
-
-        const products = await Promise.all(
-            cart.getProducts.map(async (product) => {
-                const productEntity = await this._ProductDatasource.findById(product.id)
-                if (productEntity.getStock < product.quantity) {
-                    throw CustomError.badRequest(
-                        `No hay suficiente stock para el producto con id ${product.id}. Stock disponible: ${productEntity.getStock}`
-                    )
-                }
-                productEntity.setStock(productEntity.getStock - product.quantity)
-                const [errors, updatedProduct] = UpdateProductDto.create(productEntity.getValues, productEntity.getId)
-                if (errors) throw CustomError.badRequest(errors)
-                await this._ProductDatasource.update(updatedProduct!)
-                return { id: productEntity.getId, quantity: product.quantity }
-            })
-        )
-
-        elements.push({ products, id })
-
-        await fs.promises.writeFile(this._FilePath, JSON.stringify(elements))
+        await CartModel.create(cart)
     }
 
-    async delete(id: string): Promise<void> {
-        const carts = await this.getElements()
-        const parsedCarts = carts.map((cart) => CartEntity.fromObject(cart))
-        const index = parsedCarts.findIndex((p: CartEntity) => p.getId === id)
-        const cartToDelete = parsedCarts[index]
-        if (index === -1) throw CustomError.notFound(`Carrito con id ${id} no encontrado`)
+    async getStock(productId: string, newQuantity: number): Promise<boolean> {
+        const product = await ProductModel.findById({ _id: productId })
+        if (!product) throw new CustomError(404, 'Producto no encontrado')
+        if (product.stock < newQuantity) throw new CustomError(401, 'Stock insuficiente')
 
-        await Promise.all(
-            cartToDelete.getProducts.map(async (product) => {
-                const productEntity = await this._ProductDatasource.findById(product.id)
-                productEntity.setStock(productEntity.getStock + product.quantity)
-                const [errors, updatedProduct] = UpdateProductDto.create(productEntity.getValues, productEntity.getId)
-                if (errors) throw CustomError.badRequest(errors)
-                await this._ProductDatasource.update(updatedProduct!)
-            })
-        )
-        parsedCarts.splice(index, 1)
-        await fs.promises.writeFile(this._FilePath, JSON.stringify(parsedCarts))
-    }
-
-    async update(cart: UpdateCartDto): Promise<void> {
-        const carts = await this.getElements()
-
-        const parsedCarts = carts.map((cart) => CartEntity.fromObject(cart))
-
-        const index = parsedCarts.findIndex((p: CartEntity) => p.getId === cart.getValues.id)
-
-        if (index === -1) throw CustomError.notFound(`Carrito con id ${cart.getValues.id} no encontrado.`)
-        const { id } = cart.getValues
-        const mappedProducts = await Promise.all(
-            cart.getValues.products.map(async (product) => {
-                const productEntity = await this._ProductDatasource.findById(product.id)
-                if (productEntity.getStock < product.quantity) {
-                    throw CustomError.badRequest(
-                        `No hay suficiente stock para el producto con id ${product.id}. Stock disponible: ${productEntity.getStock}`
-                    )
-                }
-                if (product.quantity < 0) {
-                    productEntity.setStock(productEntity.getStock - product.quantity)
-                } else {
-                    productEntity.setStock(productEntity.getStock + product.quantity)
-                }
-
-                const [errors, updatedProduct] = UpdateProductDto.create(productEntity.getValues, productEntity.getId)
-                if (errors) throw CustomError.badRequest(errors)
-
-                await this._ProductDatasource.update(updatedProduct!)
-                return { id: productEntity.getId, quantity: product.quantity }
-            })
-        )
-
-        const updatedCartProducts = parsedCarts[index].getProducts
-            .map((product): ProductCartInterface | null => {
-                const productIndex = mappedProducts.findIndex((p) => p.id === product.id)
-                if (productIndex === -1) return product
-                const updatedProduct = {
-                    id: product.id,
-                    quantity: product.quantity + mappedProducts[productIndex].quantity,
-                }
-
-                if (updatedProduct.quantity === 0) return null
-
-                return updatedProduct
-            })
-            .filter((p) => p !== null)
-
-        if (updatedCartProducts.length === 0) {
-            await this.delete(id)
-            return
-        }
-        parsedCarts[index] = new CartEntity(id, updatedCartProducts as ProductCartInterface[])
-        await fs.promises.writeFile(this._FilePath, JSON.stringify(parsedCarts))
-    }
-
-    databaseInstance(path: string): void {
-        if (!fs.existsSync(this._DatabasePath)) {
-            fs.mkdirSync(this._DatabasePath)
-        }
-        if (fs.existsSync(path)) return
-
-        fs.writeFileSync(path, '[]')
+        return true
     }
 
     async getAll(limit = 0, offset = 0): Promise<CartEntity[]> {
-        const carts = JSON.parse(await fs.promises.readFile(this._FilePath, 'utf-8')) as unknown as CartEntityData[]
-
-        if (limit > 0) return carts.slice(offset, offset + limit).map((cart) => CartEntity.fromObject(cart))
-
-        return carts.map((cart) => CartEntity.fromObject(cart))
+        const cart = await CartModel.find().limit(limit).skip(offset)
+        return cart.map((cart) => CartEntity.fromObject(cart))
     }
 
     async findById(id: string): Promise<CartEntity> {
-        const data = await fs.promises.readFile(this._FilePath, 'utf-8')
-        const carts = JSON.parse(data).map((cart: CartEntityData) => CartEntity.fromObject(cart))
+        const cart = await CartModel.findById({ _id: id })
+        if (!cart) throw new CustomError(404, 'Carrito no encontrado')
 
-        const cart = carts.find((p: CartEntity) => p.getId === id)
-        if (!cart) throw CustomError.notFound(`Carrito con id ${id} no encontrado`)
-        return cart
+        return CartEntity.fromObject(cart)
     }
 
-    async getElements(): Promise<any[]> {
-        const data = await fs.promises.readFile(this._FilePath, 'utf-8')
-        return JSON.parse(data) as any[]
+    async update(newCart: UpdateCartDto): Promise<void> {
+        const cart = await CartModel.findById({ _id: newCart.getId })
+        if (!cart) throw new CustomError(404, 'Carrito no encontrado')
+
+        switch (newCart.getAction) {
+            case CART_ACTION.INCREASE_QUANTITY: {
+                await this.getStock(newCart.getProductId, newCart.getQuantity)
+
+                const productToUpdate = cart.products.find((p) => p.product_id === newCart.getId)
+                if (!productToUpdate) {
+                    throw new CustomError(404, 'Producto no encontrado')
+                }
+
+                productToUpdate.quantity += newCart.getQuantity
+
+                break
+            }
+
+            case CART_ACTION.DECREASE_QUANTITY: {
+                await this.getStock(newCart.getProductId, newCart.getQuantity)
+                const productToUpdate = cart.products.find((p) => p.product_id === newCart.getId)
+                if (!productToUpdate) {
+                    throw new CustomError(404, 'Producto no encontrado')
+                }
+
+                productToUpdate.quantity -= newCart.getQuantity
+                break
+            }
+
+            case CART_ACTION.CHANGE_QUANTITY: {
+                await this.getStock(newCart.getProductId, newCart.getQuantity)
+                const productToUpdate = cart.products.find((p) => p.product_id === newCart.getId)
+                if (!productToUpdate) {
+                    throw new CustomError(404, 'Producto no encontrado')
+                }
+
+                productToUpdate.quantity = newCart.getQuantity
+
+                break
+            }
+
+            default:
+                break
+        }
+
+        await cart.save()
+    }
+
+    async delete(id: string): Promise<void> {
+        const cart = await CartModel.findById({ _id: id })
+        if (!cart) throw new CustomError(404, 'Carrito no encontrado')
+        await CartModel.deleteOne({ _id: id })
     }
 }

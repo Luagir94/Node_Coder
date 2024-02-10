@@ -1,4 +1,4 @@
-import { type CreateCartDto } from '@/domain/dto/cart/create-cart'
+import { type CreateCartDto } from '@/domain/dto'
 import { type CartRepository } from '@/domain/repositories'
 
 export interface CreateCartUseCaseInterface {

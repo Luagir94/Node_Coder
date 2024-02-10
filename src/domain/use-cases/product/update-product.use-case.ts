@@ -1,4 +1,4 @@
-import { type UpdateProductDto } from '@/domain/dto/product/update-product'
+import { type UpdateProductDto } from '@/domain/dto'
 import { type ProductRepository } from '@/domain/repositories'
 
 export interface UpdateProductUseCaseInterface {

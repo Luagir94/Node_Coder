@@ -7,6 +7,7 @@ export interface ProductEntityData {
     stock: number
     status: boolean
     category: string
+    slug: string
 }
 
 export class ProductEntity {
@@ -19,6 +20,7 @@ export class ProductEntity {
     private readonly id: string
     private readonly status: boolean
     private readonly category: string
+    private readonly slug: string
 
     constructor(
         id: string,
@@ -29,7 +31,8 @@ export class ProductEntity {
         thumbnail: string[],
         stock: number,
         status: boolean,
-        category: string
+        category: string,
+        slug: string
     ) {
         this.id = id
         this.code = code
@@ -40,6 +43,7 @@ export class ProductEntity {
         this.stock = stock
         this.status = status
         this.category = category
+        this.slug = slug
     }
 
     public get getId(): string {
@@ -60,13 +64,14 @@ export class ProductEntity {
             stock: this.stock,
             category: this.category,
             status: this.status,
+            slug: this.slug,
         }
     }
 
     public static fromObject(object: Record<string, any>): ProductEntity {
-        const { id, code, name, price, description, thumbnail, stock, status, category } = object
+        const { id, code, name, price, description, thumbnail, stock, status, category, slug } = object
 
-        return new ProductEntity(id, code, name, price, description, thumbnail, stock, status, category)
+        return new ProductEntity(id, code, name, price, description, thumbnail, stock, status, category, slug)
     }
 
     public setStock(stock: number) {

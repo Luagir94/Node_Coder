@@ -1,5 +1,4 @@
-import { CreateProductDto } from '@/domain/dto'
-import { UpdateProductDto } from '@/domain/dto/product/update-product'
+import { CreateProductDto, UpdateProductDto } from '@/domain/dto'
 import { CustomError } from '@/domain/errors'
 import { type ProductRepository } from '@/domain/repositories'
 import {
@@ -9,7 +8,10 @@ import {
     GetProductUseCase,
     UpdateProductUseCase,
 } from '@/domain/use-cases'
+import { LoggerService } from '@/infrastructure/services/logger'
 import { type Request, type Response } from 'express'
+import { MongoError } from 'mongodb'
+import mongoose from 'mongoose'
 
 export class ProductController {
     constructor(private readonly productRepository: ProductRepository) {}
@@ -76,10 +78,16 @@ export class ProductController {
     }
 
     private readonly handleError = (error: unknown, res: Response) => {
-        if (error instanceof CustomError) {
-            return res.status(error.statusCode).json({ error: error.message })
+        if (error instanceof mongoose.Error || error instanceof MongoError) {
+            LoggerService.error(`DB Error: ${error.message}`)
+            return res.status(500).json({ error: error.message })
         }
 
-        return res.status(500).json({ error: 'Internal server error' })
+        if (error instanceof CustomError) {
+            LoggerService.error(error.message)
+            return res.status(error.statusCode).json({ error: error.message })
+        }
+        console.error(error)
+        return res.status(500).json({ error: 'Error desconocido' })
     }
 }
