@@ -44,19 +44,20 @@ export class HandlerError {
             if (error instanceof MongoError && error.code === 11000) {
                 return res.status(400).json({
                     error: `El valor '${error.errmsg.split('index:')[1].split('dup key')[0].split('_')[0].trim()}' ya existe`,
+                    statusCode: 400,
                 })
             }
-            return res.status(500).json({ error: error.message })
+            return res.status(500).json({ error: error.message, statusCode: 500 })
         }
 
         if (error instanceof CustomError) {
-            return res.status(error.statusCode).json({ error: error.message })
+            return res.status(error.statusCode).json({ error: error.message, statusCode: error.statusCode })
         }
 
         if (error instanceof Error) {
-            return res.status(500).json({ error: error.message })
+            return res.status(500).json({ error: error.message, statusCode: 500 })
         }
 
-        return res.status(500).json({ error: 'Error desconocido' })
+        return res.status(500).json({ error: 'Error desconocido', statusCode: 500 })
     }
 }
