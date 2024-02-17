@@ -1,3 +1,4 @@
+import { CustomError } from '@/domain/errors'
 import { CART_ACTION } from '@/domain/types/enum'
 import { errorMessages } from '@/utils/messages'
 import { z } from 'zod'
@@ -40,34 +41,26 @@ export class UpdateCartDto {
         return this.productId
     }
 
-    static create(props: Record<string, any>, id: string): [string?, UpdateCartDto?] {
-        try {
-            const schema = z.object({
-                productId: z.string({ required_error: errorMessages.requiredField('productId') }),
-                quantity: z.number({ required_error: errorMessages.requiredField('quantity') }),
-                id: z.string({ required_error: errorMessages.requiredField('id') }),
-                action: z.nativeEnum(CART_ACTION, {
-                    required_error: errorMessages.requiredField('action'),
-                    invalid_type_error: errorMessages.invalidFormat('action', 'enum'),
-                }),
-            })
+    static create(props: Record<string, any>, id: string): UpdateCartDto | undefined {
+        const schema = z.object({
+            productId: z.string({ required_error: errorMessages.requiredField('productId') }),
+            quantity: z.number({ required_error: errorMessages.requiredField('quantity') }),
+            id: z.string({ required_error: errorMessages.requiredField('id') }),
+            action: z.nativeEnum(CART_ACTION, {
+                required_error: errorMessages.requiredField('action'),
+                invalid_type_error: errorMessages.invalidFormat('action', 'enum'),
+            }),
+        })
 
-            const schemaParsed = schema.safeParse({ ...props, id })
+        const schemaParsed = schema.safeParse({ ...props, id })
 
-            if (schemaParsed.success === false) {
-                return [schemaParsed.error.issues[0].message]
-            }
-
-            const { productId, quantity, action } = schemaParsed.data
-
-            return [undefined, new UpdateCartDto(productId, quantity, id, action)]
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                return [error.issues[0].message]
-            } else if (error instanceof Error) {
-                return [error.message]
-            }
-            return ['An error occurred']
+        if (schemaParsed.success === false) {
+            CustomError.badRequest(schemaParsed.error.issues[0].message)
+            return
         }
+
+        const { productId, quantity, action } = schemaParsed.data
+
+        return new UpdateCartDto(productId, quantity, id, action)
     }
 }

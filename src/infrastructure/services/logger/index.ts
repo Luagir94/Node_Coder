@@ -1,6 +1,7 @@
 import { createLogger, format, type Logger, transports } from 'winston'
 
 const { combine, timestamp, label, printf, colorize } = format
+
 export class LoggerService {
     private static readonly logger: Logger = createLogger({
         transports: [new transports.Console()],

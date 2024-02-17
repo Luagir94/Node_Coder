@@ -1,5 +1,5 @@
 import { CreateCartDto, UpdateCartDto } from '@/domain/dto'
-import { CustomError, HandlerError } from '@/domain/errors'
+import { HandlerError } from '@/domain/errors'
 import { type CartRepository } from '@/domain/repositories'
 import {
     CreateCartUseCase,
@@ -39,27 +39,33 @@ export class CartController {
     }
 
     public createCart = (req: Request, res: Response) => {
-        const [error, createCartDto] = CreateCartDto.create(req.body)
-        if (error) throw CustomError.badRequest(error)
+        try {
+            const createCartDto = CreateCartDto.create(req.body)
 
-        new CreateCartUseCase(this.cartRepository)
-            .execute(createCartDto!)
-            .then(() => {
-                res.status(201).json({ message: 'Carrito creado' })
-            })
-            .catch((error) => HandlerError.responseFormat(error, res))
+            new CreateCartUseCase(this.cartRepository)
+                .execute(createCartDto!)
+                .then(() => {
+                    res.status(201).json({ message: 'Carrito creado' })
+                })
+                .catch((error) => HandlerError.responseFormat(error, res))
+        } catch (error) {
+            HandlerError.responseFormat(error, res)
+        }
     }
 
     public updateCart = (req: Request, res: Response) => {
         const id = req.params.id
-        const [error, updateCartDto] = UpdateCartDto.create(req.body, id)
-        if (error) throw CustomError.badRequest(error)
-        new UpdateCartUseCase(this.cartRepository)
-            .execute(updateCartDto!)
-            .then(() => {
-                res.status(200).json({ message: 'Carrito actualizado' })
-            })
-            .catch((error) => HandlerError.responseFormat(error, res))
+        try {
+            const updateCartDto = UpdateCartDto.create(req.body, id)
+            new UpdateCartUseCase(this.cartRepository)
+                .execute(updateCartDto!)
+                .then(() => {
+                    res.status(200).json({ message: 'Carrito actualizado' })
+                })
+                .catch((error) => HandlerError.responseFormat(error, res))
+        } catch (error) {
+            HandlerError.responseFormat(error, res)
+        }
     }
 
     public deleteCart = (req: Request, res: Response) => {

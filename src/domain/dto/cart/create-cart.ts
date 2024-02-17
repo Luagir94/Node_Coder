@@ -1,4 +1,5 @@
 import { type ProductCartInterface } from '@/domain/entities'
+import { CustomError } from '@/domain/errors'
 import { errorMessages } from '@/utils/messages'
 import { z } from 'zod'
 
@@ -13,7 +14,7 @@ export class CreateCartDto {
         return this.products
     }
 
-    static create(props: Record<string, any>): [string?, CreateCartDto?] {
+    static create(props: Record<string, any>): CreateCartDto | undefined {
         const productsPropsSchema = z.object({
             product_id: z.string({ required_error: errorMessages.requiredField('id') }),
             quantity: z
@@ -27,21 +28,13 @@ export class CreateCartDto {
             products: z.array(productsPropsSchema).nonempty({ message: errorMessages.requiredField('products') }),
         })
 
-        try {
-            const schemaParsed = schema.safeParse({ ...props })
+        const schemaParsed = schema.safeParse({ ...props })
 
-            if (schemaParsed.success === false) {
-                return [schemaParsed.error.issues[0].message]
-            }
-
-            return [undefined, new CreateCartDto(schemaParsed.data.products)]
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                return [error.issues[0].message]
-            } else if (error instanceof Error) {
-                return [error.message]
-            }
-            return ['An error occurred']
+        if (schemaParsed.success === false) {
+            CustomError.badRequest(schemaParsed.error.issues[0].message)
+            return
         }
+
+        return new CreateCartDto(schemaParsed.data.products)
     }
 }

@@ -1,3 +1,4 @@
+import { CustomError } from '@/domain/errors'
 import { errorMessages } from '@/utils/messages'
 import { z } from 'zod'
 
@@ -18,27 +19,19 @@ export class LoginDto {
         return this.email
     }
 
-    static create(props: Record<string, any>): [string?, LoginDto?] {
+    static create(props: Record<string, any>): LoginDto | undefined {
         const schema = z.object({
             email: z.string({ required_error: errorMessages.requiredField('email') }),
             password: z.string({ required_error: errorMessages.requiredField('password') }),
         })
 
-        try {
-            const schemaParsed = schema.safeParse({ ...props })
+        const schemaParsed = schema.safeParse({ ...props })
 
-            if (schemaParsed.success === false) {
-                return [schemaParsed.error.issues[0].message]
-            }
-
-            return [undefined, new LoginDto(schemaParsed.data.password, schemaParsed.data.email)]
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                return [error.issues[0].message]
-            } else if (error instanceof Error) {
-                return [error.message]
-            }
-            return ['An error occurred']
+        if (schemaParsed.success === false) {
+            CustomError.badRequest(schemaParsed.error.issues[0].message)
+            return
         }
+
+        return new LoginDto(schemaParsed.data.password, schemaParsed.data.email)
     }
 }

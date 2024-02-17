@@ -1,0 +1,11 @@
+.mw-18rem{
+
+    @media (min-width: 780px){
+        width: 48%;
+    }
+
+    @media (min-width: 1024px){
+        max-width: 18rem;
+    }
+}
+

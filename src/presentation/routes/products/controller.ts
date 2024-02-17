@@ -1,5 +1,5 @@
 import { CreateProductDto, UpdateProductDto } from '@/domain/dto'
-import { CustomError, HandlerError } from '@/domain/errors'
+import { HandlerError } from '@/domain/errors'
 import { type ProductRepository } from '@/domain/repositories'
 import {
     CreateProductUseCase,
@@ -39,28 +39,32 @@ export class ProductController {
     }
 
     public createProduct = async (req: Request, res: Response) => {
-        const [error, createProductDto] = CreateProductDto.create(req.body)
-        if (error) throw CustomError.badRequest(error)
-
-        new CreateProductUseCase(this.productRepository)
-            .execute(createProductDto!)
-            .then(() => {
-                res.status(201).json({ message: 'Producto creado' })
-            })
-            .catch((error) => HandlerError.responseFormat(error, res))
+        try {
+            const createProductDto = CreateProductDto.create(req.body)
+            new CreateProductUseCase(this.productRepository)
+                .execute(createProductDto!)
+                .then(() => {
+                    res.status(201).json({ message: 'Producto creado' })
+                })
+                .catch((error) => HandlerError.responseFormat(error, res))
+        } catch (error) {
+            HandlerError.responseFormat(error, res)
+        }
     }
 
     public updateProduct = async (req: Request, res: Response) => {
         const id = req.params.id
-        const [error, updateProductDto] = UpdateProductDto.create(req.body, id)
-        if (error) throw CustomError.badRequest(error)
-
-        new UpdateProductUseCase(this.productRepository)
-            .execute(updateProductDto!)
-            .then(() => {
-                res.status(200).json({ message: 'Producto actualizado' })
-            })
-            .catch((error) => HandlerError.responseFormat(error, res))
+        try {
+            const updateProductDto = UpdateProductDto.create(req.body, id)
+            new UpdateProductUseCase(this.productRepository)
+                .execute(updateProductDto!)
+                .then(() => {
+                    res.status(200).json({ message: 'Producto actualizado' })
+                })
+                .catch((error) => HandlerError.responseFormat(error, res))
+        } catch (error) {
+            HandlerError.responseFormat(error, res)
+        }
     }
 
     public deleteProduct = async (req: Request, res: Response) => {
@@ -72,5 +76,21 @@ export class ProductController {
                 res.status(200).json({ message: 'Producto eliminado' })
             })
             .catch((error) => HandlerError.responseFormat(error, res))
+    }
+
+    public getProductsView = async (req: Request, res: Response) => {
+        let { limit, offset } = req.query
+
+        if (!limit) limit = '0'
+        if (!offset) offset = ' 0'
+
+        new GetProductsUseCase(this.productRepository)
+            .execute(+limit, +offset)
+            .then((products) => {
+                res.render('templates/allProducts', { products, mostrarProductos: true })
+            })
+            .catch((error) => {
+                HandlerError.responseFormat(error, res)
+            })
     }
 }

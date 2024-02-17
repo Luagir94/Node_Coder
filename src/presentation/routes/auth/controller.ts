@@ -9,28 +9,31 @@ export class AuthController {
     constructor(private readonly authRepository: AuthRepository) {}
 
     public login = (req: Request, res: Response) => {
-        const [error, loginDto] = LoginDto.create(req.body)
-
-        if (error) return res.status(400).json({ error })
-
-        new LoginUseCase(this.authRepository)
-            .execute(loginDto!)
-            .then((token) => {
-                res.json({ token })
-            })
-            .catch((error) => HandlerError.responseFormat(error, res))
+        try {
+            const loginDto = LoginDto.create(req.body)
+            new LoginUseCase(this.authRepository)
+                .execute(loginDto!)
+                .then((data) => {
+                    res.json(data)
+                })
+                .catch((error) => HandlerError.responseFormat(error, res))
+        } catch (error) {
+            HandlerError.responseFormat(error, res)
+        }
     }
 
     public register = (req: Request, res: Response) => {
-        const [error, registerDto] = RegisterDto.create(req.body)
+        try {
+            const registerDto = RegisterDto.create(req.body)
 
-        if (error) return res.status(400).json({ error })
-
-        new RegisterUseCase(this.authRepository)
-            .execute(registerDto!)
-            .then(() => {
-                res.status(201).json({ message: 'Usuario creado' })
-            })
-            .catch((error) => HandlerError.responseFormat(error, res))
+            new RegisterUseCase(this.authRepository)
+                .execute(registerDto!)
+                .then(() => {
+                    res.status(201).json({ message: 'Usuario creado' })
+                })
+                .catch((error) => HandlerError.responseFormat(error, res))
+        } catch (error) {
+            HandlerError.responseFormat(error, res)
+        }
     }
 }

@@ -13,27 +13,27 @@ export class CustomError extends Error {
 
     static badRequest(message: string) {
         LoggerService.error(`${message}`)
-        return new CustomError(400, message)
+        throw new CustomError(400, message)
     }
 
     static unauthorized(message: string) {
         LoggerService.error(`${message}`)
-        return new CustomError(401, message)
+        throw new CustomError(401, message)
     }
 
     static forbidden(message: string) {
         LoggerService.error(`${message}`)
-        return new CustomError(403, message)
+        throw new CustomError(403, message)
     }
 
     static notFound(message: string) {
         LoggerService.error(`${message}`)
-        return new CustomError(404, message)
+        throw new CustomError(404, message)
     }
 
     static internalServer(message: string) {
         LoggerService.error(`${message}`)
-        return new CustomError(500, message)
+        throw new CustomError(500, message)
     }
 }
 
@@ -51,6 +51,10 @@ export class HandlerError {
 
         if (error instanceof CustomError) {
             return res.status(error.statusCode).json({ error: error.message })
+        }
+
+        if (error instanceof Error) {
+            return res.status(500).json({ error: error.message })
         }
 
         return res.status(500).json({ error: 'Error desconocido' })

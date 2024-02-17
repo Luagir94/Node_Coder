@@ -25,10 +25,20 @@ Para levantar los proyectos, debes cambiar a la branch correspondiente al
 proyecto que quieras levantar y seguir las instrucciones del README.md
 de esa branch.
 
-### Comandos base (Varian segun la branch)):
+### Preparar entorno:
 
-|          | Comandos                                         | Descripción                            |
-|----------|--------------------------------------------------|----------------------------------------|
+---
+1 - Cambiar el .env.example por .env y llenar las variables de entorno.
+
+2 - Instalar las dependencias del proyecto con el comando `npm install` o `yarn install` o `pnpm install`.
+
+3 - Levantar el proyecto con el comando `npm run dev` o `yarn dev` o `pnpm dev`.
+
+
+### Comandos base (Varian segun la branch):
+
+|          | Comandos                                               | Descripción                            |
+|----------|--------------------------------------------------------|----------------------------------------|
 | Instalar | `npm install`<br/> `yarn install` <br/> `pnpm install` | Instala las dependencias del proyecto  |
 | Dev      | `npm run dev`<br/> `yarn dev` <br/> `pnpm dev`         | Levanta el proyecto en modo desarrollo |
 | Build    | `npm run build`<br/> `yarn build` <br/> `pnpm build`   | Crea el proyecto para producción       |

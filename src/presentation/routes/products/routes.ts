@@ -13,6 +13,7 @@ export class ProductRoutes {
         const productController = new ProductController(productRepository)
 
         router.get('/', productController.getProducts)
+        router.get('/view', productController.getProductsView)
         router.get('/:id', productController.getProductById)
         router.post('/', [AuthMiddleware.validateJWT, AuthMiddleware.validateAdmin], productController.createProduct)
         router.put('/:id', [AuthMiddleware.validateJWT, AuthMiddleware.validateAdmin], productController.updateProduct)

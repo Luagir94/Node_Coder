@@ -1,0 +1,25 @@
+<h1 >Productos</h1>
+
+{{#if mostrarProductos}}
+    <div class="row row-cols-auto gap-3 mx-auto justify-content-center justify-content-lg-start ">
+        {{#each products}}
+            <div class="col-auto mx-auto mx-sm-0 w-fit p-0 mw-18rem">
+            <div class="card w-auto" style="max-width: 36rem" >
+                <img src="{{this.thumbnail.[0]}}" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{this.name}}</h5>
+                    <p class="card-text">{{this.description}}</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">An item</li>
+                    <li class="list-group-item">Precio: {{this.price}}</li>
+                    <li class="list-group-item">Stock: {{this.stock}}</li>
+                </ul>
+            </div>
+            </div>
+        {{/each}}
+    </div>
+
+{{else}}
+    <p>No se pueden mostrar los productos</p>
+{{/if}}

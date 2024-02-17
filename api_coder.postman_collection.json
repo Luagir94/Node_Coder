@@ -64,7 +64,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/products?limit=8&offset=4",
+							"raw": "{{host}}/api/products?limit=8",
 							"host": [
 								"{{host}}"
 							],
@@ -76,10 +76,79 @@
 								{
 									"key": "limit",
 									"value": "8"
-								},
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-products-view",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = `\r",
+									"<style type=\"text/css\">\r",
+									"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}\r",
+									"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}\r",
+									"    .tftable tr {background-color:#ffffff;}\r",
+									"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}\r",
+									"    .tftable tr:hover {background-color:#e0ffff;}\r",
+									"</style>\r",
+									"\r",
+									"<table class=\"tftable\" border=\"1\">\r",
+									"    <tr>\r",
+									"        <th>ID</th>\r",
+									"        <th>Code</th>\r",
+									"        <th>Title</th>\r",
+									"        <th>Price</th>\r",
+									"        <th>Description</th>\r",
+									"        <th>Thumbnail</th>\r",
+									"        <th>Stock</th>\r",
+									"    </tr>\r",
+									"    \r",
+									"    {{#each response}}\r",
+									"        <tr>\r",
+									"            <td>{{id}}</td>\r",
+									"            <td>{{code}}</td>\r",
+									"            <td>{{title}}</td>\r",
+									"            <td>{{price}}</td>\r",
+									"            <td>{{description}}</td>\r",
+									"            <td>{{thumbnail}}</td>\r",
+									"            <td>{{stock}}</td>\r",
+									"        </tr>\r",
+									"    {{/each}}\r",
+									"</table>\r",
+									"`;\r",
+									"\r",
+									"function constructVisualizerPayload() {\r",
+									"    return { response: pm.response.json() }\r",
+									"}\r",
+									"\r",
+									"pm.visualizer.set(template, constructVisualizerPayload());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/products?limit=8",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"products"
+							],
+							"query": [
 								{
-									"key": "offset",
-									"value": "4"
+									"key": "limit",
+									"value": "8"
 								}
 							]
 						}
@@ -92,14 +161,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/products/232",
+							"raw": "{{host}}/api/products/8d92c208-6f9f-4bd6-92ef-22bc83411803",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"products",
-								"232"
+								"8d92c208-6f9f-4bd6-92ef-22bc83411803"
 							]
 						}
 					},
@@ -112,7 +181,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"code\": \"asd\",\r\n    \"price\": 222,\r\n    \"description\": \"lala\",\r\n    \"thumbnail\": [],\r\n    \"stock\": 22,\r\n    \"name\": \"pelota\",\r\n    \"category\": \"futbol\"\r\n}",
+							"raw": "{\r\n    \"code\": \"asd\",\r\n    \"price\": 222,\r\n    \"description\": \"lala\",\r\n    \"thumbnail\": [],\r\n    \"stock\": 222,\r\n    \"name\": \"pelota\",\r\n    \"category\": \"futttttttttttttttttbolllllllllllllllllllllllllll\",\r\n    \"slug\": \"holisssss\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -241,7 +310,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"products\": [\r\n        {\"id\" : \"34b18ff2-438b-4755-a5be-bd10fa573f4d\", \"quantity\" : 20}\r\n    ]\r\n}",
+							"raw": "{\r\n    \"products\": [\r\n        {\r\n            \"product_id\": \"c5c8f7d3-c648-4fdd-9eae-41742864747d\",\r\n            \"quantity\": 200\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -275,7 +344,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"products\": [\r\n        {\r\n            \"id\": \"34b18ff2-438b-4755-a5be-bd10fa573f4d\",\r\n            \"quantity\": -2\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"products\": [\r\n        {\r\n            \"product_id\": \"c5c8f7d3-c648-4fdd-9eae-41742864747d\",\r\n            \"quantity\": 100\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -283,14 +352,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/api/carts/4c316bdc-cbe8-43d7-b44a-c77f4ce8a2c9",
+							"raw": "{{host}}/api/carts/b185e4f0-f54d-488c-b456-b245c83a4cef",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"carts",
-								"4c316bdc-cbe8-43d7-b44a-c77f4ce8a2c9"
+								"b185e4f0-f54d-488c-b456-b245c83a4cef"
 							]
 						}
 					},
@@ -302,14 +371,88 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/carts/67daa706-e50b-4dd1-b517-e13efde56407",
+							"raw": "{{host}}/api/carts/621d2b58-2d02-4463-a3a6-016ba09e116c",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"carts",
-								"67daa706-e50b-4dd1-b517-e13efde56407"
+								"621d2b58-2d02-4463-a3a6-016ba09e116c"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var res = pm.response.json();\r",
+									"pm.collectionVariables.set('token', res.token);\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"lucianoagiraudi@gmail.com\",\r\n    \"password\": \"coderhouse1234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/auth/login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"lucianoagiraudi@gmail.com\",\r\n    \"password\": \"coderhouse1234\",\r\n    \"firstName\": \"Luciano\",\r\n    \"lastName\": \"Giraudi\",\r\n    \"address\":{\r\n        \"street\": \"Jonte\",\r\n        \"city\": \"CABA\",\r\n        \"state\": \"CABA\",\r\n        \"zip\": \"14176\",\r\n        \"country\": \"Argentina\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/auth/register",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
 							]
 						}
 					},
@@ -318,6 +461,16 @@
 			]
 		}
 	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
 	"event": [
 		{
 			"listen": "prerequest",
@@ -342,6 +495,11 @@
 		{
 			"key": "host",
 			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "\"\"",
 			"type": "string"
 		}
 	]
