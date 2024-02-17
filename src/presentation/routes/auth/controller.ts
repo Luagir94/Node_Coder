@@ -14,7 +14,9 @@ export class AuthController {
             new LoginUseCase(this.authRepository)
                 .execute(loginDto!)
                 .then((data) => {
-                    res.json(data)
+                    res.cookie('Authorization', data.token, { httpOnly: true, signed: true, maxAge: 100000000 }).json(
+                        data
+                    )
                 })
                 .catch((error) => HandlerError.responseFormat(error, res))
         } catch (error) {

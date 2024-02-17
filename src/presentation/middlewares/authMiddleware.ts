@@ -8,14 +8,20 @@ import { type NextFunction, type Request, type Response } from 'express'
 export class AuthMiddleware {
     static async validateJWT(req: Request, res: Response, next: NextFunction) {
         try {
-            const authorization = req.header('Authorization')
-            if (!authorization) {
-                throw CustomError.forbidden('Sin token de autorización')
+            let token = req.header('Authorization')
+            let isFromCookie = false
+            if (!token) {
+                console.log(req.cookies)
+                token = req.cookies?.Authorization
+                if (!token) {
+                    throw CustomError.forbidden('Sin token de autorización')
+                }
+                isFromCookie = true
             }
-            if (!authorization.startsWith('Bearer ')) CustomError.forbidden('Formato de token inválido')
+            if (!isFromCookie && !token.startsWith('Bearer ')) CustomError.forbidden('Formato de token inválido')
 
-            const token = authorization.split(' ').at(1) ?? ''
-            const payload = await JwtAdapter.validateToken<{ id: string }>(token)
+            const parsedToken = isFromCookie ? token : token.split(' ').at(1) ?? ''
+            const payload = await JwtAdapter.validateToken<{ id: string }>(parsedToken)
             if (!payload) {
                 throw CustomError.forbidden('Token inválido')
             }

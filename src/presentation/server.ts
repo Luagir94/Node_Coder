@@ -1,6 +1,7 @@
 import { envs } from '@/config'
 import { LoggerService } from '@/infrastructure/services/logger'
 import { AppRoutes } from '@/presentation/routes'
+import * as cookieParser from 'cookie-parser'
 import * as express from 'express'
 import { type Router } from 'express'
 import { engine } from 'express-handlebars'
@@ -38,7 +39,7 @@ export class Server {
         )
         this.app.set('view engine', 'hbs')
         this.app.set('views', dirName)
-
+        this.app.use(cookieParser(envs.JWT_SECRET))
         this.io.on('connection', (socket: socketIo.Socket) => {
             LoggerService.info('a user connected')
 
