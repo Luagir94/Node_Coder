@@ -57,7 +57,7 @@ export class UpdateProductDto {
         return this.id
     }
 
-    static create(props: Record<string, any>, id: string): UpdateProductDto | undefined {
+    static create(props: Record<string, any>, id: string): UpdateProductDto {
         props.price = +props.price
         props.stock = +props.stock
         props.quantity = +props.quantity
@@ -98,8 +98,7 @@ export class UpdateProductDto {
         const schemaParsed = schema.safeParse({ ...props, id })
 
         if (schemaParsed.success === false) {
-            CustomError.badRequest(schemaParsed.error.issues[0].message)
-            return
+            throw CustomError.badRequest(schemaParsed.error.issues[0].message)
         }
 
         return new UpdateProductDto(

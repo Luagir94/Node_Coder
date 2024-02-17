@@ -41,7 +41,7 @@ export class UpdateCartDto {
         return this.productId
     }
 
-    static create(props: Record<string, any>, id: string): UpdateCartDto | undefined {
+    static create(props: Record<string, any>, id: string): UpdateCartDto {
         const schema = z.object({
             productId: z.string({ required_error: errorMessages.requiredField('productId') }),
             quantity: z.number({ required_error: errorMessages.requiredField('quantity') }),
@@ -55,8 +55,7 @@ export class UpdateCartDto {
         const schemaParsed = schema.safeParse({ ...props, id })
 
         if (schemaParsed.success === false) {
-            CustomError.badRequest(schemaParsed.error.issues[0].message)
-            return
+            throw CustomError.badRequest(schemaParsed.error.issues[0].message)
         }
 
         const { productId, quantity, action } = schemaParsed.data

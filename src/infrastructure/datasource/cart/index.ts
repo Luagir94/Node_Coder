@@ -13,7 +13,10 @@ export class CartDatasourceImpl implements CartDataSource {
 
     async getStock(productId: string, newQuantity: number): Promise<boolean> {
         const product = await ProductModel.findById({ _id: productId })
-        if (!product) throw new CustomError(404, 'Producto no encontrado')
+        if (!product) {
+            CustomError.notFound('Producto no encontrado')
+            return false
+        }
         if (product.stock < newQuantity) {
             CustomError.badRequest('Stock insuficiente')
             return false
@@ -27,11 +30,10 @@ export class CartDatasourceImpl implements CartDataSource {
         return cart.map((cart) => CartEntity.fromObject(cart))
     }
 
-    async findById(id: string): Promise<CartEntity | undefined> {
+    async findById(id: string): Promise<CartEntity> {
         const cart = await CartModel.findById({ _id: id })
         if (!cart) {
-            CustomError.notFound('Carrito no encontrado')
-            return
+            throw CustomError.notFound('Carrito no encontrado')
         }
 
         return CartEntity.fromObject(cart)
@@ -50,8 +52,7 @@ export class CartDatasourceImpl implements CartDataSource {
 
                 const productToUpdate = cart.products.find((p) => p.product_id === newCart.getId)
                 if (!productToUpdate) {
-                    CustomError.notFound('Producto no encontrado')
-                    return
+                    throw CustomError.notFound('Carrito no encontrado')
                 }
 
                 productToUpdate.quantity += newCart.getQuantity
@@ -63,8 +64,7 @@ export class CartDatasourceImpl implements CartDataSource {
                 await this.getStock(newCart.getProductId, newCart.getQuantity)
                 const productToUpdate = cart.products.find((p) => p.product_id === newCart.getId)
                 if (!productToUpdate) {
-                    CustomError.notFound('Producto no encontrado')
-                    return
+                    throw CustomError.notFound('Producto no encontrado')
                 }
 
                 productToUpdate.quantity -= newCart.getQuantity
@@ -75,8 +75,7 @@ export class CartDatasourceImpl implements CartDataSource {
                 await this.getStock(newCart.getProductId, newCart.getQuantity)
                 const productToUpdate = cart.products.find((p) => p.product_id === newCart.getId)
                 if (!productToUpdate) {
-                    CustomError.notFound('Producto no encontrado')
-                    return
+                    throw CustomError.notFound('Producto no encontrado')
                 }
 
                 productToUpdate.quantity = newCart.getQuantity
@@ -94,8 +93,7 @@ export class CartDatasourceImpl implements CartDataSource {
     async delete(id: string): Promise<void> {
         const cart = await CartModel.findById({ _id: id })
         if (!cart) {
-            CustomError.notFound('Producto no encontrado')
-            return
+            throw CustomError.notFound('Producto no encontrado')
         }
         await CartModel.deleteOne({ _id: id })
     }

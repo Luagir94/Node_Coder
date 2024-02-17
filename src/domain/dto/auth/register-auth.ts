@@ -36,7 +36,7 @@ export class RegisterDto {
         }
     }
 
-    static create(props: Record<string, any>): RegisterDto | undefined {
+    static create(props: Record<string, any>): RegisterDto {
         const schema = z.object({
             email: z.string({ required_error: errorMessages.requiredField('email') }),
             password: z.string({ required_error: errorMessages.requiredField('password') }),
@@ -60,8 +60,7 @@ export class RegisterDto {
         const schemaParsed = schema.safeParse({ ...props })
 
         if (schemaParsed.success === false) {
-            CustomError.badRequest(schemaParsed.error.issues[0].message)
-            return
+            throw CustomError.badRequest(schemaParsed.error.issues[0].message)
         }
 
         return new RegisterDto(

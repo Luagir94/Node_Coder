@@ -68,7 +68,7 @@ export class CreateProductDto {
         this.slug = slug
     }
 
-    static create(props: Record<string, any>): CreateProductDto | undefined {
+    static create(props: Record<string, any>): CreateProductDto {
         props.price = +props.price
         props.stock = +props.stock
         props.quantity = +props.quantity
@@ -76,8 +76,7 @@ export class CreateProductDto {
         const schemaParsed = schema.safeParse(props)
 
         if (schemaParsed.success === false) {
-            CustomError.badRequest(schemaParsed.error.issues[0].message)
-            return
+            throw CustomError.badRequest(schemaParsed.error.issues[0].message)
         }
 
         return new CreateProductDto(

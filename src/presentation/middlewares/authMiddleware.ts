@@ -10,22 +10,19 @@ export class AuthMiddleware {
         try {
             const authorization = req.header('Authorization')
             if (!authorization) {
-                CustomError.forbidden('Sin token de autorización')
-                return
+                throw CustomError.forbidden('Sin token de autorización')
             }
             if (!authorization.startsWith('Bearer ')) CustomError.forbidden('Formato de token inválido')
 
             const token = authorization.split(' ').at(1) ?? ''
             const payload = await JwtAdapter.validateToken<{ id: string }>(token)
             if (!payload) {
-                CustomError.forbidden('Token inválido')
-                return
+                throw CustomError.forbidden('Token inválido')
             }
 
             const user = await UserModel.findById(payload.id)
             if (!user) {
-                CustomError.forbidden('Usuario invalido')
-                return
+                throw CustomError.forbidden('Usuario invalido')
             }
 
             req.body.userData = UserEntity.fromObject(user)
@@ -43,7 +40,7 @@ export class AuthMiddleware {
 
         try {
             if (userData.role !== USER_ROLE.ADMIN)
-                CustomError.forbidden('No tienes permisos para realizar esta acción.')
+                throw CustomError.forbidden('No tienes permisos para realizar esta acción.')
 
             next()
         } catch (error) {

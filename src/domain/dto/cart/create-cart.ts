@@ -14,7 +14,7 @@ export class CreateCartDto {
         return this.products
     }
 
-    static create(props: Record<string, any>): CreateCartDto | undefined {
+    static create(props: Record<string, any>): CreateCartDto {
         const productsPropsSchema = z.object({
             product_id: z.string({ required_error: errorMessages.requiredField('id') }),
             quantity: z
@@ -31,8 +31,7 @@ export class CreateCartDto {
         const schemaParsed = schema.safeParse({ ...props })
 
         if (schemaParsed.success === false) {
-            CustomError.badRequest(schemaParsed.error.issues[0].message)
-            return
+            throw CustomError.badRequest(schemaParsed.error.issues[0].message)
         }
 
         return new CreateCartDto(schemaParsed.data.products)

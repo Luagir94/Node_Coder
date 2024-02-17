@@ -19,7 +19,7 @@ export class LoginDto {
         return this.email
     }
 
-    static create(props: Record<string, any>): LoginDto | undefined {
+    static create(props: Record<string, any>): LoginDto {
         const schema = z.object({
             email: z.string({ required_error: errorMessages.requiredField('email') }),
             password: z.string({ required_error: errorMessages.requiredField('password') }),
@@ -28,8 +28,7 @@ export class LoginDto {
         const schemaParsed = schema.safeParse({ ...props })
 
         if (schemaParsed.success === false) {
-            CustomError.badRequest(schemaParsed.error.issues[0].message)
-            return
+            throw CustomError.badRequest(schemaParsed.error.issues[0].message)
         }
 
         return new LoginDto(schemaParsed.data.password, schemaParsed.data.email)

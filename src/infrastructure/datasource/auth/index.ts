@@ -13,15 +13,21 @@ export class AuthDataSourceImpl implements AuthDataSource {
     }> {
         const user = await UserModel.findOne({ email: loginDto.getEmail })
 
-        if (!user) throw CustomError.notFound('Usuario o contraseña incorrectos')
+        if (!user) {
+            throw CustomError.notFound('Usuario o contraseña incorrectos')
+        }
         const isMatchingPassword = bcryptAdapter.compare(loginDto.getPassword, user.password)
 
-        if (!isMatchingPassword) throw CustomError.notFound('Usuario o contraseña incorrectos')
+        if (!isMatchingPassword) {
+            throw CustomError.notFound('Usuario o contraseña incorrectos')
+        }
 
         const { getData } = UserEntity.fromObject(user)
 
         const token = await JwtAdapter.generateToken({ id: user.id, email: user.email })
-        if (!token) throw CustomError.internalServer('Error al crear el token')
+        if (!token) {
+            throw CustomError.internalServer('Error al crear el token')
+        }
 
         return {
             token: token as string,

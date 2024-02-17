@@ -18,16 +18,25 @@ export class ProductDatasourceImpl implements ProductDataSource {
 
     async findById(id: string): Promise<ProductEntity> {
         const product = await ProductModel.findById({ _id: id })
-        if (!product) throw CustomError.notFound('Producto no encontrado')
+        if (!product) {
+            throw CustomError.notFound('Producto no encontrado')
+        }
 
         return ProductEntity.fromObject(product)
     }
 
     async update(product: UpdateProductDto): Promise<void> {
-        await ProductModel.updateOne({ _id: product.getId }, product.getValues)
+        const productExist = ProductModel.updateOne({ _id: product.getId }, product.getValues)
+        if (!productExist) {
+            throw CustomError.notFound('Producto no encontrado')
+        }
     }
 
     async delete(id: string): Promise<void> {
-        await ProductModel.deleteOne({ _id: id })
+        const productExist = await ProductModel.deleteOne({ _id: id })
+
+        if (!productExist) {
+            throw CustomError.notFound('Producto no encontrado')
+        }
     }
 }
